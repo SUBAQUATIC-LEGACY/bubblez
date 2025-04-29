@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bubble Catcher</title>
+    <style>
+      body {
+        text-align: center;
+        background: #222;
+        color: white;
+      }
+      canvas {
+        background: url("https://celcliptipsprod.s3-ap-northeast-1.amazonaws.com/tips_article_body/4537/1559205/a0b41465dd5f5b2215c7be1a2929edd2")
+          no-repeat center center/cover;
+      }
+      button {
+        font-size: 18px;
+        padding: 10px 20px;
+        margin-top: 20px;
+        display: none;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        top: 60%;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Bubble Catcher!</h1>
+    <canvas id="gameCanvas" width="400" height="500"></canvas>
+    <button id="restartBtn" onclick="restartGame()">Restart</button>
+    <script>
+      const canvas = document.getElementById("gameCanvas")
+      const ctx = canvas.getContext("2d")
+      const restartBtn = document.getElementById("restartBtn")
+
+      const player = {
+        x: 180,
+        y: 450,
+        width: 50,
+        height: 50,
+        speed: 7,
+        image: new Image(),
+      }
+      player.image.src =
+        "https://png.pngtree.com/png-clipart/20190115/ourmid/pngtree-ocean-park-underwater-world-whale-blue-whale-png-image_372676.jpg"
+
+      const whaleImg = new Image()
+      whaleImg.src =
+        "https://png.pngtree.com/png-clipart/20190115/ourmid/pngtree-ocean-park-underwater-world-whale-blue-whale-png-image_372676.jpg"
+
+      let bubbles = []
+      let score = 0
+      let lives = 3
+      let gameOver = false
+      let bubbleInterval = 2000
+      let lastBubbleTime = 0
+      let lastDifficultyIncrease = Date.now()
+
+      function createBubble() {
+        if (!gameOver) {
+          let isRed = Math.random() < 0.15 // 15% chance for red bubble
+          bubbles.push({
+            x: Math.random() * 360,
+            y: 0,
+            radius: 15 + Math.random() * 10,
+            speed: isRed ? 1 : 1 + Math.random() * 1.5,
+            opacity: 0.7 + Math.random() * 0.3,
+            red: isRed,
+          })
+        }
+      }
+
+      function update() {
+        if (gameOver) return
+
+        let now = Date.now()
+        if (now - lastBubbleTime > bubbleInterval) {
+          createBubble()
+          lastBubbleTime = now
+        }
+
+        if (now - lastDifficultyIncrease > 10000 && bubbleInterval > 600) {
+          bubbleInterval -= 200
+          lastDifficultyIncrease = now
+        }
+
+        bubbles.forEach((bubble, index) => {
+          bubble.y += bubble.speed
+          if (bubble.y > canvas.height) {
+            bubbles.splice(index, 1)
+            lives--
+            if (lives <= 0) {
+              gameOver = true
+              restartBtn.style.display = "inline-block"
+            }
+          }
+        })
+
+        bubbles = bubbles.filter((bubble) => {
+          const hit =
+            bubble.x > player.x &&
+            bubble.x < player.x + player.width &&
+            bubble.y + bubble.radius > player.y &&
+            bubble.y < player.y + player.height
+          if (hit) score += bubble.red ? 10 : 1
+          return !hit
+        })
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        ctx.drawImage(
+          player.image,
+          player.x,
+          player.y,
+          player.width,
+          player.height,
+        )
+
+        bubbles.forEach((bubble) => {
+          ctx.beginPath()
+          let gradient = ctx.createRadialGradient(
+            bubble.x,
+            bubble.y,
+            2,
+            bubble.x,
+            bubble.y,
+            bubble.radius,
+          )
+          if (bubble.red) {
+            gradient.addColorStop(0, `rgba(255, 99, 99, ${bubble.opacity})`)
+            gradient.addColorStop(1, `rgba(255, 0, 0, 0)`)
+          } else {
+            gradient.addColorStop(0, `rgba(173, 216, 230, ${bubble.opacity})`)
+            gradient.addColorStop(1, `rgba(0, 0, 255, 0)`)
+          }
+          ctx.fillStyle = gradient
+          ctx.arc(bubble.x, bubble.y, bubble.radius, 0, Math.PI * 2)
+          ctx.fill()
+        })
+
+        // Draw score
+        ctx.font = "bold 22px Arial"
+        ctx.fillStyle = "black"
+        ctx.fillText("Score: " + score, canvas.width - 120, 30)
+
+        // Draw lives (whales)
+        for (let i = 0; i < lives; i++) {
+          ctx.drawImage(whaleImg, 10 + i * 30, 10, 25, 25)
+        }
+
+        // Game over text
+        if (gameOver) {
+          ctx.font = "bold 30px Arial"
+          ctx.fillStyle = "black"
+          ctx.textAlign = "center" // Makes centering easier
+          ctx.fillText("Game Over!", canvas.width * 0.5, canvas.height * 0.3)
+          ctx.fillText(
+            "Score: " + score,
+            canvas.width * 0.5,
+            canvas.height * 0.5,
+          )
+          ctx.fillText(
+            "Expansion pack: JUN25",
+            canvas.width * 0.5,
+            canvas.height * 0.6,
+          )
+        }
+      }
+
+      function gameLoop() {
+        update()
+        draw()
+        requestAnimationFrame(gameLoop)
+      }
+
+      let keys = {}
+      document.addEventListener("keydown", (e) => (keys[e.key] = true))
+      document.addEventListener("keyup", (e) => (keys[e.key] = false))
+
+      let isTouching = false
+
+      canvas.addEventListener("touchstart", function (e) {
+        const touch = e.touches[0]
+        const rect = canvas.getBoundingClientRect()
+        const touchX = touch.clientX - rect.left
+
+        // Check if touch is on the player
+        if (touchX >= player.x && touchX <= player.x + player.width) {
+          isTouching = true
+        }
+      })
+
+      canvas.addEventListener(
+        "touchmove",
+        function (e) {
+          if (isTouching) {
+            const touch = e.touches[0]
+            const rect = canvas.getBoundingClientRect()
+            const touchX = touch.clientX - rect.left
+
+            // Move player to center on touchX
+            player.x = touchX - player.width / 2
+
+            // Clamp to canvas bounds
+            if (player.x < 0) player.x = 0
+            if (player.x + player.width > canvas.width)
+              player.x = canvas.width - player.width
+          }
+          e.preventDefault() // Prevent scrolling
+        },
+        { passive: false },
+      )
+
+      canvas.addEventListener("touchend", function () {
+        isTouching = false
+      })
+
+      function movePlayer() {
+        if (!gameOver) {
+          if (keys["ArrowLeft"] && player.x > 0) player.x -= player.speed
+          if (keys["ArrowRight"] && player.x + player.width < canvas.width)
+            player.x += player.speed
+        }
+        requestAnimationFrame(movePlayer)
+      }
+
+      function restartGame() {
+        bubbles = []
+        score = 0
+        lives = 3
+        gameOver = false
+        restartBtn.style.display = "none"
+        bubbleInterval = 2000
+        lastBubbleTime = Date.now()
+        lastDifficultyIncrease = Date.now()
+      }
+
+      gameLoop()
+      movePlayer()
+    </script>
+  </body>
+</html>
