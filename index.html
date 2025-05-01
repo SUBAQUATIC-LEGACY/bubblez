@@ -305,7 +305,7 @@
             tempCtx.drawImage(canvas, 0, 0)
 
             const link = document.createElement("a")
-            link.download = `bubble_catcher_story_${score}.png`
+            link.download = `bubble_catcher_story_${score}.jpg`
             link.href = tempCanvas.toDataURL("image/png")
             document.body.appendChild(link)
             link.click()
