@@ -214,10 +214,10 @@
           document.getElementById("downloadBtn").style.display = "inline-block"
         }
       }
-			
-      window.addEventListener('resize', resizeCanvas)
-			resizeCanvas()
-      
+
+      window.addEventListener("resize", resizeCanvas)
+      resizeCanvas()
+
       function gameLoop() {
         update()
         draw()
@@ -288,14 +288,46 @@
       }
 
       function downloadScreenshot() {
-        // Wait a frame to make sure Game Over screen is drawn
         requestAnimationFrame(() => {
           try {
-            const link = document.createElement("a")
-            link.download = `bubble_catcher_score_${score}.png`
-            link.href = canvas.toDataURL("image/png")
+            const gameWidth = canvas.width
+            const gameHeight = canvas.height
 
-            // Append link to DOM (needed for some browsers)
+            const targetWidth = 1080
+            const targetHeight = 1920
+
+            const scale = Math.min(
+              targetWidth / gameWidth,
+              targetHeight / gameHeight,
+            )
+            const offsetX = (targetWidth - gameWidth * scale) / 2
+            const offsetY = (targetHeight - gameHeight * scale) / 2
+
+            const tempCanvas = document.createElement("canvas")
+            tempCanvas.width = targetWidth
+            tempCanvas.height = targetHeight
+            const tempCtx = tempCanvas.getContext("2d")
+
+            // Optional: fill background
+            tempCtx.fillStyle = "#222"
+            tempCtx.fillRect(0, 0, targetWidth, targetHeight)
+
+            // Draw your game canvas into the larger one
+            tempCtx.drawImage(
+              canvas,
+              0,
+              0,
+              gameWidth,
+              gameHeight,
+              offsetX,
+              offsetY,
+              gameWidth * scale,
+              gameHeight * scale,
+            )
+
+            const link = document.createElement("a")
+            link.download = `bubble_catcher_story_${score}.png`
+            link.href = tempCanvas.toDataURL("image/png")
             document.body.appendChild(link)
             link.click()
             document.body.removeChild(link)
