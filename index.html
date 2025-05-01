@@ -30,6 +30,8 @@
     <h1>Bubble Catcher!</h1>
     <canvas id="gameCanvas" width="400" height="500"></canvas>
     <button id="restartBtn" onclick="restartGame()">Restart</button>
+    <button id="downloadBtn" onclick="downloadScreenshot()" style="display:none;">Download & Share</button>
+
     <script>
       const canvas = document.getElementById("gameCanvas")
       const ctx = canvas.getContext("2d")
@@ -94,6 +96,7 @@
             if (lives <= 0) {
               gameOver = true
               restartBtn.style.display = "inline-block"
+              downloadBtn.style.display = 'inline-block';
             }
           }
         })
@@ -237,6 +240,13 @@
         lastBubbleTime = Date.now()
         lastDifficultyIncrease = Date.now()
       }
+      
+      function downloadScreenshot() {
+        const link = document.createElement('a');
+        link.download = `bubble_catcher_score_${score}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+			}
 
       gameLoop()
       movePlayer()
