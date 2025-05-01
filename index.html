@@ -11,18 +11,29 @@
         color: white;
       }
       canvas {
-        background: url("https://celcliptipsprod.s3-ap-northeast-1.amazonaws.com/tips_article_body/4537/1559205/a0b41465dd5f5b2215c7be1a2929edd2")
-          no-repeat center center/cover;
+        width: 100%;
+        height: auto;
+        max-width: 600px;
+        display: block;
+        margin: 0 auto;
       }
-      button {
+
+      #restartBtn,
+      #downloadBtn {
         font-size: 18px;
         padding: 10px 20px;
-        margin-top: 20px;
         display: none;
         position: absolute;
         left: 50%;
         transform: translateX(-50%);
+      }
+
+      #restartBtn {
         top: 60%;
+      }
+
+      #downloadBtn {
+        top: 80%;
       }
     </style>
   </head>
@@ -30,12 +41,19 @@
     <h1>Bubble Catcher!</h1>
     <canvas id="gameCanvas" width="400" height="500"></canvas>
     <button id="restartBtn" onclick="restartGame()">Restart</button>
-    <button id="downloadBtn" onclick="downloadScreenshot()" style="display:none;">Download & Share</button>
+    <button id="downloadBtn" onclick="downloadScreenshot()">
+      Download & Share
+    </button>
 
     <script>
       const canvas = document.getElementById("gameCanvas")
       const ctx = canvas.getContext("2d")
       const restartBtn = document.getElementById("restartBtn")
+
+      const backgroundImage = new Image()
+      backgroundImage.src =
+        "https://subaquatic-legacy.github.io/bubblezzzz/images/background.png"
+      backgroundImage.crossOrigin = "anonymous"
 
       const player = {
         x: 180,
@@ -45,12 +63,14 @@
         speed: 7,
         image: new Image(),
       }
+      player.image.crossOrigin = "anonymous"
       player.image.src =
-        "https://png.pngtree.com/png-clipart/20190115/ourmid/pngtree-ocean-park-underwater-world-whale-blue-whale-png-image_372676.jpg"
+        "https://subaquatic-legacy.github.io/bubblezzzz/images/whale.jpg"
 
       const whaleImg = new Image()
+      whaleImg.crossOrigin = "anonymous"
       whaleImg.src =
-        "https://png.pngtree.com/png-clipart/20190115/ourmid/pngtree-ocean-park-underwater-world-whale-blue-whale-png-image_372676.jpg"
+        "https://subaquatic-legacy.github.io/bubblezzzz/images/whale.jpg"
 
       let bubbles = []
       let score = 0
@@ -59,6 +79,23 @@
       let bubbleInterval = 2000
       let lastBubbleTime = 0
       let lastDifficultyIncrease = Date.now()
+
+      function resizeCanvas() {
+        // Choose a base resolution
+        const baseWidth = 400
+        const baseHeight = 500
+
+        // Set internal canvas resolution
+        const scale = Math.min(
+          window.innerWidth / baseWidth,
+          window.innerHeight / baseHeight,
+        )
+        canvas.width = baseWidth
+        canvas.height = baseHeight
+
+        canvas.style.width = `${baseWidth * scale}px`
+        canvas.style.height = `${baseHeight * scale}px`
+      }
 
       function createBubble() {
         if (!gameOver) {
@@ -96,7 +133,7 @@
             if (lives <= 0) {
               gameOver = true
               restartBtn.style.display = "inline-block"
-              downloadBtn.style.display = 'inline-block';
+              downloadBtn.style.display = "inline-block"
             }
           }
         })
@@ -114,6 +151,8 @@
 
       function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height)
+        ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height)
+
         ctx.drawImage(
           player.image,
           player.x,
@@ -147,7 +186,9 @@
         // Draw score
         ctx.font = "bold 22px Arial"
         ctx.fillStyle = "black"
-        ctx.fillText("Score: " + score, canvas.width - 120, 30)
+        if (!gameOver) {
+          ctx.fillText("Score: " + score, canvas.width - 120, 30)
+        }
 
         // Draw lives (whales)
         for (let i = 0; i < lives; i++) {
@@ -170,9 +211,13 @@
             canvas.width * 0.5,
             canvas.height * 0.6,
           )
+          document.getElementById("downloadBtn").style.display = "inline-block"
         }
       }
-
+			
+      window.addEventListener('resize', resizeCanvas)
+			resizeCanvas()
+      
       function gameLoop() {
         update()
         draw()
@@ -239,14 +284,26 @@
         bubbleInterval = 2000
         lastBubbleTime = Date.now()
         lastDifficultyIncrease = Date.now()
+        document.getElementById("downloadBtn").style.display = "none"
       }
-      
+
       function downloadScreenshot() {
-        const link = document.createElement('a');
-        link.download = `bubble_catcher_score_${score}.png`;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-			}
+        // Wait a frame to make sure Game Over screen is drawn
+        requestAnimationFrame(() => {
+          try {
+            const link = document.createElement("a")
+            link.download = `bubble_catcher_score_${score}.png`
+            link.href = canvas.toDataURL("image/png")
+
+            // Append link to DOM (needed for some browsers)
+            document.body.appendChild(link)
+            link.click()
+            document.body.removeChild(link)
+          } catch (e) {
+            console.error("Screenshot download failed:", e)
+          }
+        })
+      }
 
       gameLoop()
       movePlayer()
