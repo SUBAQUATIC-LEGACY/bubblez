@@ -5,17 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Bubble Catcher</title>
     <style>
+      html,
       body {
         text-align: center;
+        margin: 0;
+        padding: 0;
+        overflow: hidden; /* Prevent scrolling */
+        height: 100%;
         background: #222;
-        color: white;
       }
+
       canvas {
-        width: 100%;
-        height: auto;
-        max-width: 600px;
         display: block;
         margin: 0 auto;
+        background: #000;
+        touch-action: none;
       }
 
       #restartBtn,
@@ -29,11 +33,11 @@
       }
 
       #restartBtn {
-        top: 80%;
+        top: 70%;
       }
 
       #downloadBtn {
-        top: 90%;
+        top: 80%;
       }
     </style>
   </head>
@@ -56,8 +60,8 @@
       backgroundImage.crossOrigin = "anonymous"
 
       const player = {
-        x: 180,
-        y: 450,
+        x: 160,
+        y: 520,
         width: 50,
         height: 50,
         speed: 7,
@@ -81,20 +85,23 @@
       let lastDifficultyIncrease = Date.now()
 
       function resizeCanvas() {
-        // Choose a base resolution
-        const baseWidth = 400
-        const baseHeight = 500
-
-        // Set internal canvas resolution
-        const scale = Math.min(
-          window.innerWidth / baseWidth,
-          window.innerHeight / baseHeight,
-        )
+        const baseWidth = 360
+        const baseHeight = 640
         canvas.width = baseWidth
         canvas.height = baseHeight
 
-        canvas.style.width = `${baseWidth * scale}px`
-        canvas.style.height = `${baseHeight * scale}px`
+        const screenRatio = window.innerWidth / window.innerHeight
+        const gameRatio = baseWidth / baseHeight
+
+        if (screenRatio > gameRatio) {
+          // Screen is wider than game: limit by height
+          canvas.style.height = window.innerHeight + "px"
+          canvas.style.width = window.innerHeight * gameRatio + "px"
+        } else {
+          // Screen is taller than game: limit by width
+          canvas.style.width = window.innerWidth + "px"
+          canvas.style.height = window.innerWidth / gameRatio + "px"
+        }
       }
 
       function createBubble() {
@@ -200,16 +207,16 @@
           ctx.font = "bold 30px Arial"
           ctx.fillStyle = "black"
           ctx.textAlign = "center" // Makes centering easier
-          ctx.fillText("Game Over!", canvas.width * 0.5, canvas.height * 0.3)
+          ctx.fillText("Game Over!", canvas.width * 0.5, canvas.height * 0.2)
           ctx.fillText(
             "Score: " + score,
             canvas.width * 0.5,
-            canvas.height * 0.5,
+            canvas.height * 0.4,
           )
           ctx.fillText(
             "Expansion pack: JUN25",
             canvas.width * 0.5,
-            canvas.height * 0.6,
+            canvas.height * 0.5,
           )
           document.getElementById("downloadBtn").style.display = "inline-block"
         }
@@ -290,40 +297,12 @@
       function downloadScreenshot() {
         requestAnimationFrame(() => {
           try {
-            const gameWidth = canvas.width
-            const gameHeight = canvas.height
-
-            const targetWidth = 1080
-            const targetHeight = 1920
-
-            const scale = Math.min(
-              targetWidth / gameWidth,
-              targetHeight / gameHeight,
-            )
-            const offsetX = (targetWidth - gameWidth * scale) / 2
-            const offsetY = (targetHeight - gameHeight * scale) / 2
-
             const tempCanvas = document.createElement("canvas")
-            tempCanvas.width = targetWidth
-            tempCanvas.height = targetHeight
+            tempCanvas.width = canvas.width
+            tempCanvas.height = canvas.height
+
             const tempCtx = tempCanvas.getContext("2d")
-
-            // Optional: fill background
-            tempCtx.fillStyle = "#222"
-            tempCtx.fillRect(0, 0, targetWidth, targetHeight)
-
-            // Draw your game canvas into the larger one
-            tempCtx.drawImage(
-              canvas,
-              0,
-              0,
-              gameWidth,
-              gameHeight,
-              offsetX,
-              offsetY,
-              gameWidth * scale,
-              gameHeight * scale,
-            )
+            tempCtx.drawImage(canvas, 0, 0)
 
             const link = document.createElement("a")
             link.download = `bubble_catcher_story_${score}.png`
