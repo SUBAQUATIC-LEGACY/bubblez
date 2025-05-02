@@ -41,6 +41,8 @@
       }
     </style>
   </head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
   <body>
     <h1>Bubble Catcher!</h1>
     <canvas id="gameCanvas" width="400" height="500"></canvas>
@@ -300,22 +302,23 @@
             const tempCanvas = document.createElement("canvas")
             tempCanvas.width = canvas.width
             tempCanvas.height = canvas.height
-
+      
             const tempCtx = tempCanvas.getContext("2d")
             tempCtx.drawImage(canvas, 0, 0)
-
-            const link = document.createElement("a")
-            link.download = `bubble_catcher_story`
-            /*link.download = `bubble_catcher_story_${score}.jpg`*/
-            link.href = tempCanvas.toDataURL("image/jpg")
-            document.body.appendChild(link)
-            link.click()
-            document.body.removeChild(link)
+      
+            tempCanvas.toBlob((blob) => {
+              if (blob) {
+                saveAs(blob, `bubble_catcher_story_${score}.png`)
+              } else {
+                console.error("Failed to convert canvas to blob.")
+              }
+            }, "image/png")
           } catch (e) {
             console.error("Screenshot download failed:", e)
           }
         })
       }
+
 
       gameLoop()
       movePlayer()
