@@ -306,7 +306,7 @@
 
             const link = document.createElement("a")
             link.download = `bubble_catcher_story_${score}.jpg`
-            link.href = tempCanvas.toDataURL("image/png")
+            link.href = tempCanvas.toDataURL("image/jpg")
             document.body.appendChild(link)
             link.click()
             document.body.removeChild(link)
