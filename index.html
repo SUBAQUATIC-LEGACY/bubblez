@@ -23,6 +23,7 @@
       }
 
       #restartBtn,
+      #openInBrowserBtn 
       #downloadBtn {
         font-size: 18px;
         padding: 10px 20px;
@@ -39,14 +40,20 @@
       #downloadBtn {
         top: 80%;
       }
+      #openInBrowserBtn {
+        top: 90%;
+        background-color: #f39c12;
+        color: white;
+      }
     </style>
   </head>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
   <body>
-    <h1>Bubble Catcher! 1.4</h1>
+    <h1>Bubble Catcher! 1.5</h1>
     <canvas id="gameCanvas" width="400" height="500"></canvas>
     <button id="restartBtn" onclick="restartGame()">Restart</button>
+    <button id="openInBrowserBtn" onclick="openInBrowser()">Open in Browser</button>
     <button id="downloadBtn" onclick="downloadDummyFile()">
       Download & Share
     </button>
@@ -55,7 +62,7 @@
       const canvas = document.getElementById("gameCanvas")
       const ctx = canvas.getContext("2d")
       const restartBtn = document.getElementById("restartBtn")
-
+			const openInBrowserBtn = document.getElementById("openInBrowserBtn");
       const backgroundImage = new Image()
       backgroundImage.src =
         "https://subaquatic-legacy.github.io/bubblezzzz/images/background.png"
@@ -77,6 +84,23 @@
       whaleImg.crossOrigin = "anonymous"
       whaleImg.src =
         "https://subaquatic-legacy.github.io/bubblezzzz/images/whale.jpg"
+
+      // Function to detect if user is on Instagram or Messenger browser
+      function isInAppBrowser() {
+        const userAgent =
+          navigator.userAgent || navigator.vendor || window.opera
+        return /instagram|facebook|messenger/i.test(userAgent)
+      }
+
+      // Show "Open in Browser" button if the user is in an app browser
+      if (isInAppBrowser()) {
+        openInBrowserBtn.style.display = "inline-block"
+      }
+
+      // Function to redirect to the default browser
+      function openInBrowser() {
+        window.open(window.location.href, "_blank")
+      }
 
       let bubbles = []
       let score = 0
