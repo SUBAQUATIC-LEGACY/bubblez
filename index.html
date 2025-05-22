@@ -2,35 +2,40 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Bubble Catcher</title>
     <style>
       html,
       body {
-        text-align: center;
         margin: 0;
         padding: 0;
         overflow: hidden;
         height: 100%;
-        background: #222;
+        width: 100%;
+        background: #000;
       }
 
       canvas {
         display: block;
-        margin: 0 auto;
-        background: #000;
+        width: 100vw;
+        height: 100vh;
         touch-action: none;
       }
 
       #restartBtn,
-      #openInBrowserBtn,
       #downloadBtn {
-        font-size: 18px;
+        font-size: bold 18px;
         padding: 10px 20px;
         display: none;
         position: absolute;
         left: 50%;
         transform: translateX(-50%);
+        background-color: #aee800;
+        color: #000;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        z-index: 20;
       }
 
       #restartBtn {
@@ -40,62 +45,57 @@
       #downloadBtn {
         top: 80%;
       }
-      #openInBrowserBtn {
-        top: 90%;
-        background-color: #f39c12;
-        color: white;
+
+      #title {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        font-family: bold Arial, sans-serif;
+        font-size: 20px;
+        color: #aee800;
+        z-index: 10;
       }
     </style>
   </head>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
   <body>
-    <h1>Bubble Catcher! 1.5</h1>
-    <canvas id="gameCanvas" width="400" height="500"></canvas>
+    <div id="title">Bubble Catcher</div>
+    <canvas id="gameCanvas"></canvas>
     <button id="restartBtn" onclick="restartGame()">Restart</button>
-    <button id="openInBrowserBtn" onclick="openInBrowser()">Open in Browser</button>
     <button id="downloadBtn" onclick="downloadDummyFile()">Download & Share</button>
 
     <script>
       const canvas = document.getElementById("gameCanvas");
       const ctx = canvas.getContext("2d");
+
       const restartBtn = document.getElementById("restartBtn");
-      const openInBrowserBtn = document.getElementById("openInBrowserBtn");
+      const downloadBtn = document.getElementById("downloadBtn");
 
       const backgroundImage = new Image();
-      backgroundImage.src = "https://subaquatic-legacy.github.io/bubblezzzz/images/Game_BG_2.png";
+      backgroundImage.src = "https://subaquatic-legacy.github.io/bubblezzzz/images/Game_BG_1.png";
       backgroundImage.crossOrigin = "anonymous";
 
       const player = {
         x: 160,
-        y: 500,
-        width: 70,
-        height: 70,
+        y: 550,
+        width: 90,
+        height: 90,
         speed: 7,
         image: new Image(),
       };
+      player.image.src = "https://subaquatic-legacy.github.io/bubblezzzz/images/Game_Hero_yellow.png";
       player.image.crossOrigin = "anonymous";
-      player.image.src = "https://subaquatic-legacy.github.io/bubblezzzz/images/Game_Hero.png";
 
       const whaleImg = new Image();
       whaleImg.crossOrigin = "anonymous";
-      whaleImg.src = "https://subaquatic-legacy.github.io/bubblezzzz/images/Game_Lifes_Left.png";
+      whaleImg.src = "https://subaquatic-legacy.github.io/bubblezzzz/images/Game_Lifes_Left_yellow.png";
 
       const bubbleImage = new Image();
-      bubbleImage.src = "https://subaquatic-legacy.github.io/bubblezzzz/images/Game_Bubble.png"; // <-- Replace this!
+      bubbleImage.src = "https://subaquatic-legacy.github.io/bubblezzzz/images/Game_Bubble.png";
       bubbleImage.crossOrigin = "anonymous";
 
-      function isInAppBrowser() {
-        const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-        return /instagram|facebook|messenger/i.test(userAgent);
-      }
-
-      if (isInAppBrowser()) {
-        openInBrowserBtn.style.display = "inline-block";
-      }
-
-      function openInBrowser() {
-        window.open(window.location.href, "_blank");
-      }
+      const redBubbleImage = new Image();
+      redBubbleImage.src = "https://subaquatic-legacy.github.io/bubblezzzz/images/Game_Bubble_cyan.png";
+      redBubbleImage.crossOrigin = "anonymous";
 
       let bubbles = [];
       let score = 0;
@@ -106,35 +106,22 @@
       let lastDifficultyIncrease = Date.now();
 
       function resizeCanvas() {
-        const baseWidth = 360;
-        const baseHeight = 640;
-        canvas.width = baseWidth;
-        canvas.height = baseHeight;
-
-        const screenRatio = window.innerWidth / window.innerHeight;
-        const gameRatio = baseWidth / baseHeight;
-
-        if (screenRatio > gameRatio) {
-          canvas.style.height = window.innerHeight + "px";
-          canvas.style.width = window.innerHeight * gameRatio + "px";
-        } else {
-          canvas.style.width = window.innerWidth + "px";
-          canvas.style.height = window.innerWidth / gameRatio + "px";
-        }
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
       }
 
       function createBubble() {
-        if (!gameOver) {
-          let isRed = Math.random() < 0.15;
-          bubbles.push({
-            x: Math.random() * 360,
-            y: 0,
-            radius: 15 + Math.random() * 10,
-            speed: isRed ? 1 : 1 + Math.random() * 1.5,
-            opacity: 0.7 + Math.random() * 0.3,
-            red: isRed,
-          });
-        }
+        const margin = 20; // to avoid edges
+        const x = margin + Math.random() * (canvas.width - 2 * margin);
+        let isRed = Math.random() < 0.15;
+        bubbles.push({
+          x: x,
+          y: 0,
+          radius: 15 + Math.random() * 10,
+          speed: isRed ? 1 : 1 + Math.random() * 1.5,
+          opacity: 0.7 + Math.random() * 0.3,
+          red: isRed,
+        });
       }
 
       function update() {
@@ -177,46 +164,43 @@
 
       function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+
+        if (gameOver) {
+          ctx.fillStyle = "red";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+        } else {
+          ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+        }
+
         ctx.drawImage(player.image, player.x, player.y, player.width, player.height);
 
         bubbles.forEach((bubble) => {
           const size = bubble.radius * 2;
           ctx.save();
           ctx.globalAlpha = bubble.opacity;
-
-          // Draw base image
-          ctx.drawImage(bubbleImage, bubble.x - bubble.radius, bubble.y - bubble.radius, size, size);
-
-          // Red tint overlay for red bubbles
-          if (bubble.red) {
-            ctx.fillStyle = "rgba(255, 0, 0, 0.4)";
-            ctx.globalCompositeOperation = "source-atop";
-            ctx.fillRect(bubble.x - bubble.radius, bubble.y - bubble.radius, size, size);
-            ctx.globalCompositeOperation = "source-over";
-          }
-
+          const img = bubble.red ? redBubbleImage : bubbleImage;
+          ctx.drawImage(img, bubble.x - bubble.radius, bubble.y - bubble.radius, size, size);
           ctx.restore();
         });
 
-        ctx.font = "bold 22px Arial";
+        ctx.font = "bold 20px Arial";
         ctx.fillStyle = "#aee800";
         if (!gameOver) {
           ctx.fillText("Score: " + score, canvas.width - 120, 30);
         }
 
+        // Draw lives left
         for (let i = 0; i < lives; i++) {
-          ctx.drawImage(whaleImg, 10 + i * 30, 10, 25, 25);
+          ctx.drawImage(whaleImg, 10 + i * 40, 40, 35, 35); // made bigger
         }
 
         if (gameOver) {
           ctx.font = "bold 30px Arial";
           ctx.fillStyle = "black";
           ctx.textAlign = "center";
-          ctx.fillText("Game Over!", canvas.width * 0.5, canvas.height * 0.2);
-          ctx.fillText("Score: " + score, canvas.width * 0.5, canvas.height * 0.4);
-          ctx.fillText("Expansion pack: JUN25", canvas.width * 0.5, canvas.height * 0.5);
-          document.getElementById("downloadBtn").style.display = "inline-block";
+          ctx.fillText("Game Over!", canvas.width / 2, canvas.height * 0.2);
+          ctx.fillText("Score: " + score, canvas.width / 2, canvas.height * 0.4);
+          ctx.fillText("Expansion pack: JUN25", canvas.width / 2, canvas.height * 0.5);
         }
       }
 
@@ -234,7 +218,6 @@
       document.addEventListener("keyup", (e) => (keys[e.key] = false));
 
       let isTouching = false;
-
       canvas.addEventListener("touchstart", function (e) {
         const touch = e.touches[0];
         const rect = canvas.getBoundingClientRect();
@@ -274,10 +257,10 @@
         lives = 3;
         gameOver = false;
         restartBtn.style.display = "none";
+        downloadBtn.style.display = "none";
         bubbleInterval = 2000;
         lastBubbleTime = Date.now();
         lastDifficultyIncrease = Date.now();
-        document.getElementById("downloadBtn").style.display = "none";
       }
 
       gameLoop();
