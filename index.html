@@ -13,6 +13,7 @@
         height: 100%;
         width: 100%;
         background: #000;
+        font-weight: bold;
       }
 
       canvas {
@@ -24,7 +25,8 @@
 
       #restartBtn,
       #downloadBtn {
-        font-size: bold 18px;
+        font-size: 18px;
+        font-weight: bold;
         padding: 10px 20px;
         display: none;
         position: absolute;
@@ -39,36 +41,72 @@
       }
 
       #restartBtn {
-        top: 70%;
+        top: 80%;
       }
 
       #downloadBtn {
-        top: 80%;
+        top: 90%;
       }
 
       #title {
         position: absolute;
         top: 10px;
         left: 10px;
-        font-family: bold Arial, sans-serif;
+        font-family: Arial, sans-serif;
         font-size: 20px;
         color: #aee800;
         z-index: 10;
+        font-weight: bold;
+      }
+
+      #gameOverScreen {
+        display: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #b41412;
+        color: #aee800;
+        text-align: center;
+        font-family: Arial, sans-serif;
+        z-index: 15;
+        padding-top: 5%;
+      }
+
+      #gameOverScreen h1,
+      #gameOverScreen p {
+        margin: 20px 0;
+        font-weight: bold;
+      }
+
+      #gameOverImage {
+        max-width: 60%;
+        height: auto;
+        margin: 10px auto;
       }
     </style>
   </head>
   <body>
     <div id="title">Bubble Catcher</div>
     <canvas id="gameCanvas"></canvas>
+    <div id="gameOverScreen">
+      <h1>GAME OVER</h1>
+      <p id="finalScore">Score: 0</p>
+      <img id="gameOverImage" crossorigin="anonymous" src="https://subaquatic-legacy.github.io/bubblezzzz/images/Game_Lifes_Left_yellow.png" alt="Game Over Image" />
+      <p>Expansion pack coming soon!</p>
+    </div>
     <button id="restartBtn" onclick="restartGame()">Restart</button>
-    <button id="downloadBtn" onclick="downloadDummyFile()">Download & Share</button>
+    <button id="downloadBtn" onclick="downloadScreenshot()">Download & Share</button>
 
     <script>
       const canvas = document.getElementById("gameCanvas");
       const ctx = canvas.getContext("2d");
-
       const restartBtn = document.getElementById("restartBtn");
       const downloadBtn = document.getElementById("downloadBtn");
+      const titleDiv = document.getElementById("title");
+      const gameOverScreen = document.getElementById("gameOverScreen");
+      const finalScoreText = document.getElementById("finalScore");
 
       const backgroundImage = new Image();
       backgroundImage.src = "https://subaquatic-legacy.github.io/bubblezzzz/images/Game_BG_1.png";
@@ -77,8 +115,8 @@
       const player = {
         x: 160,
         y: 550,
-        width: 90,
-        height: 90,
+        width: 100,
+        height: 100,
         speed: 7,
         image: new Image(),
       };
@@ -111,9 +149,9 @@
       }
 
       function createBubble() {
-        const margin = 20; // to avoid edges
+        const margin = 20;
         const x = margin + Math.random() * (canvas.width - 2 * margin);
-        let isRed = Math.random() < 0.15;
+        const isRed = Math.random() < 0.15;
         bubbles.push({
           x: x,
           y: 0,
@@ -144,9 +182,7 @@
             bubbles.splice(index, 1);
             lives--;
             if (lives <= 0) {
-              gameOver = true;
-              restartBtn.style.display = "inline-block";
-              downloadBtn.style.display = "inline-block";
+              triggerGameOver();
             }
           }
         });
@@ -165,54 +201,73 @@
       function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        if (gameOver) {
-          ctx.fillStyle = "red";
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-        } else {
-          ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
-        }
-
-        ctx.drawImage(player.image, player.x, player.y, player.width, player.height);
-
-        bubbles.forEach((bubble) => {
-          const size = bubble.radius * 2;
-          ctx.save();
-          ctx.globalAlpha = bubble.opacity;
-          const img = bubble.red ? redBubbleImage : bubbleImage;
-          ctx.drawImage(img, bubble.x - bubble.radius, bubble.y - bubble.radius, size, size);
-          ctx.restore();
-        });
-
-        ctx.font = "bold 20px Arial";
-        ctx.fillStyle = "#aee800";
         if (!gameOver) {
+          ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+          ctx.drawImage(player.image, player.x, player.y, player.width, player.height);
+
+          bubbles.forEach((bubble) => {
+            const size = bubble.radius * 2;
+            ctx.save();
+            ctx.globalAlpha = bubble.opacity;
+            const img = bubble.red ? redBubbleImage : bubbleImage;
+            ctx.drawImage(img, bubble.x - bubble.radius, bubble.y - bubble.radius, size, size);
+            ctx.restore();
+          });
+
+          ctx.font = "bold 20px Arial";
+          ctx.fillStyle = "#aee800";
           ctx.fillText("Score: " + score, canvas.width - 120, 30);
-        }
 
-        // Draw lives left
-        for (let i = 0; i < lives; i++) {
-          ctx.drawImage(whaleImg, 10 + i * 40, 40, 35, 35); // made bigger
-        }
-
-        if (gameOver) {
-          ctx.font = "bold 30px Arial";
-          ctx.fillStyle = "black";
-          ctx.textAlign = "center";
-          ctx.fillText("Game Over!", canvas.width / 2, canvas.height * 0.2);
-          ctx.fillText("Score: " + score, canvas.width / 2, canvas.height * 0.4);
-          ctx.fillText("Expansion pack: JUN25", canvas.width / 2, canvas.height * 0.5);
+          for (let i = 0; i < lives; i++) {
+            ctx.drawImage(whaleImg, 10 + i * 40, 40, 35, 35);
+          }
         }
       }
+
+      function triggerGameOver() {
+        gameOver = true;
+        bubbles = [];
+        titleDiv.style.display = "none";
+        gameOverScreen.style.display = "block";
+        finalScoreText.textContent = "Score: " + score;
+        restartBtn.style.display = "inline-block";
+        downloadBtn.style.display = "inline-block";
+      }
+
+      function restartGame() {
+        bubbles = [];
+        score = 0;
+        lives = 3;
+        gameOver = false;
+        titleDiv.style.display = "block";
+        gameOverScreen.style.display = "none";
+        restartBtn.style.display = "none";
+        downloadBtn.style.display = "none";
+        bubbleInterval = 2000;
+        lastBubbleTime = Date.now();
+        lastDifficultyIncrease = Date.now();
+      }
+
+      function downloadScreenshot() {
+        restartBtn.style.display = "none";
+        downloadBtn.style.display = "none";
+
+        html2canvas(document.getElementById("gameOverScreen"),{useCORS: true}).then((canvasShot) => {
+          const link = document.createElement("a");
+          link.download = "bubblecatcher_score.png";
+          link.href = canvasShot.toDataURL();
+          link.click();
+
+          restartBtn.style.display = "inline-block";
+          downloadBtn.style.display = "inline-block";
+        });
+      }
+      
+      
 
       window.addEventListener("resize", resizeCanvas);
       resizeCanvas();
-
-      function gameLoop() {
-        update();
-        draw();
-        requestAnimationFrame(gameLoop);
-      }
-
+      function gameLoop() { update(); draw(); requestAnimationFrame(gameLoop); }
       let keys = {};
       document.addEventListener("keydown", (e) => (keys[e.key] = true));
       document.addEventListener("keyup", (e) => (keys[e.key] = false));
@@ -226,7 +281,6 @@
           isTouching = true;
         }
       });
-
       canvas.addEventListener("touchmove", function (e) {
         if (isTouching) {
           const touch = e.touches[0];
@@ -238,10 +292,7 @@
         }
         e.preventDefault();
       }, { passive: false });
-
-      canvas.addEventListener("touchend", function () {
-        isTouching = false;
-      });
+      canvas.addEventListener("touchend", function () { isTouching = false; });
 
       function movePlayer() {
         if (!gameOver) {
@@ -251,20 +302,9 @@
         requestAnimationFrame(movePlayer);
       }
 
-      function restartGame() {
-        bubbles = [];
-        score = 0;
-        lives = 3;
-        gameOver = false;
-        restartBtn.style.display = "none";
-        downloadBtn.style.display = "none";
-        bubbleInterval = 2000;
-        lastBubbleTime = Date.now();
-        lastDifficultyIncrease = Date.now();
-      }
-
       gameLoop();
       movePlayer();
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   </body>
 </html>
