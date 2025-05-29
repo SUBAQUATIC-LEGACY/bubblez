@@ -2,24 +2,73 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Bubble Catcher</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <style>
       html,
       body {
-        text-align: center;
         margin: 0;
         padding: 0;
-        overflow: hidden; /* Prevent scrolling */
+        overflow: hidden;
         height: 100%;
         background: #222;
       }
 
-      canvas {
-        display: block;
+      #gameContainer {
+        position: relative;
         margin: 0 auto;
         background: #000;
         touch-action: none;
+      }
+
+      canvas {
+        display: block;
+        background: #000;
+      }
+
+      #gameOverScreen {
+        display: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        background-color: #b41412;
+        color: #aee800;
+        text-align: center;
+        font-family: Arial, sans-serif;
+        z-index: 15;
+        padding-top: 5%;
+        box-sizing: border-box;
+        overflow: hidden;
+      }
+
+      #gameOverScreen h1,
+      #gameOverScreen p {
+        margin: 10px 0;
+        font-weight: bold;
+      }
+
+      #gameOverImage {
+        max-width: 60%;
+        height: auto;
+        margin: 10 auto;
+      }
+
+      #gameOverScreen h1 {
+        margin-bottom: 0;
+      }
+
+      #finalScore {
+        margin-top: 0;
+        font-size: 28px;
+        margin-bottom: 120px;
+      }
+
+      #expansionPhrase {
+        font-size: 28px;
+        font-weight: bold;
+        margin-top: 30px;
       }
 
       #restartBtn,
@@ -46,70 +95,45 @@
       #downloadBtn {
         top: 90%;
       }
-
-      #title {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        font-family: Arial, sans-serif;
-        font-size: 20px;
-        color: #aee800;
-        z-index: 10;
-        font-weight: bold;
-      }
-
-      #gameOverScreen {
-        display: none;
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: #b41412;
-        color: #aee800;
-        text-align: center;
-        font-family: Arial, sans-serif;
-        z-index: 15;
-        padding-top: 5%;
-      }
-
-      #gameOverScreen h1,
-      #gameOverScreen p {
-        margin: 20px 0;
-        font-weight: bold;
-      }
-
-      #gameOverImage {
-        max-width: 60%;
-        height: auto;
-        margin: 10px auto;
-      }
     </style>
   </head>
   <body>
-    <div id="title">Bubble Catcher</div>
-    <canvas id="gameCanvas"></canvas>
-    <div id="gameOverScreen">
-      <h1>GAME OVER</h1>
-      <p id="finalScore">Score: 0</p>
-      <img id="gameOverImage" crossorigin="anonymous" src="https://subaquatic-legacy.github.io/bubblezzzz/images/Game_Lifes_Left_yellow.png" alt="Game Over Image" />
-      <p>Expansion pack coming soon!</p>
+    <div id="gameContainer">
+      <canvas id="gameCanvas"></canvas>
+      <div id="gameOverScreen">
+        <h1>GAME OVER</h1>
+        <p id="finalScore">Score: 0</p>
+        <img
+          id="gameOverImage"
+          crossorigin="anonymous"
+          src="https://subaquatic-legacy.github.io/bubblezzzz/images/Game_Hercules.png"
+          alt="Game Over Image"
+        />
+        <p id="expansionPhrase">Expansion pack<br />coming soon!</p>
+      </div>
     </div>
     <button id="restartBtn" onclick="restartGame()">Restart</button>
-    <button id="downloadBtn" onclick="downloadScreenshot()">Download & Share</button>
+    <button id="downloadBtn" onclick="downloadScreenshot()">
+      Download & Share
+    </button>
 
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <script>
-      const canvas = document.getElementById("gameCanvas");
-      const ctx = canvas.getContext("2d");
-      const restartBtn = document.getElementById("restartBtn");
-      const downloadBtn = document.getElementById("downloadBtn");
-      const titleDiv = document.getElementById("title");
-      const gameOverScreen = document.getElementById("gameOverScreen");
-      const finalScoreText = document.getElementById("finalScore");
+      const canvas = document.getElementById("gameCanvas")
+      const ctx = canvas.getContext("2d")
+      const restartBtn = document.getElementById("restartBtn")
+      const downloadBtn = document.getElementById("downloadBtn")
+      const gameContainer = document.getElementById("gameContainer")
+      const gameOverScreen = document.getElementById("gameOverScreen")
+      const finalScoreText = document.getElementById("finalScore")
 
-      const backgroundImage = new Image();
-      backgroundImage.src = "https://subaquatic-legacy.github.io/bubblezzzz/images/Game_BG_1.png";
-      backgroundImage.crossOrigin = "anonymous";
+      const baseWidth = 360
+      const baseHeight = 640
+
+      const backgroundImage = new Image()
+      backgroundImage.src =
+        "https://subaquatic-legacy.github.io/bubblezzzz/images/Game_BG_1.png"
+      backgroundImage.crossOrigin = "anonymous"
 
       const player = {
         x: 160,
@@ -118,207 +142,247 @@
         height: 100,
         speed: 7,
         image: new Image(),
-      };
-      player.image.src = "https://subaquatic-legacy.github.io/bubblezzzz/images/Game_Hero_yellow.png";
-      player.image.crossOrigin = "anonymous";
+      }
+      player.image.src =
+        "https://subaquatic-legacy.github.io/bubblezzzz/images/Game_Hero_yellow.png"
+      player.image.crossOrigin = "anonymous"
 
-      const whaleImg = new Image();
-      whaleImg.crossOrigin = "anonymous";
-      whaleImg.src = "https://subaquatic-legacy.github.io/bubblezzzz/images/Game_Lifes_Left_yellow.png";
+      const whaleImg = new Image()
+      whaleImg.crossOrigin = "anonymous"
+      whaleImg.src =
+        "https://subaquatic-legacy.github.io/bubblezzzz/images/Game_Lifes_Left_yellow.png"
 
-      const bubbleImage = new Image();
-      bubbleImage.src = "https://subaquatic-legacy.github.io/bubblezzzz/images/Game_Bubble.png";
-      bubbleImage.crossOrigin = "anonymous";
+      const bubbleImage = new Image()
+      bubbleImage.src =
+        "https://subaquatic-legacy.github.io/bubblezzzz/images/Game_Bubble.png"
+      bubbleImage.crossOrigin = "anonymous"
 
-      const redBubbleImage = new Image();
-      redBubbleImage.src = "https://subaquatic-legacy.github.io/bubblezzzz/images/Game_Bubble_cyan.png";
-      redBubbleImage.crossOrigin = "anonymous";
+      const redBubbleImage = new Image()
+      redBubbleImage.src =
+        "https://subaquatic-legacy.github.io/bubblezzzz/images/Game_Bubble_cyan.png"
+      redBubbleImage.crossOrigin = "anonymous"
 
-      let bubbles = [];
-      let score = 0;
-      let lives = 3;
-      let gameOver = false;
-      let bubbleInterval = 2000;
-      let lastBubbleTime = 0;
-      let lastDifficultyIncrease = Date.now();
+      let bubbles = []
+      let score = 0
+      let lives = 3
+      let gameOver = false
+      let bubbleInterval = 2000
+      let lastBubbleTime = 0
+      let lastDifficultyIncrease = Date.now()
 
       function resizeCanvas() {
-        const baseWidth = 360
-        const baseHeight = 640
         canvas.width = baseWidth
         canvas.height = baseHeight
 
         const screenRatio = window.innerWidth / window.innerHeight
         const gameRatio = baseWidth / baseHeight
 
+        let width, height
         if (screenRatio > gameRatio) {
-          // Screen is wider than game: limit by height
-          canvas.style.height = window.innerHeight + "px"
-          canvas.style.width = window.innerHeight * gameRatio + "px"
+          height = window.innerHeight
+          width = height * gameRatio
         } else {
-          // Screen is taller than game: limit by width
-          canvas.style.width = window.innerWidth + "px"
-          canvas.style.height = window.innerWidth / gameRatio + "px"
+          width = window.innerWidth
+          height = width / gameRatio
         }
+
+        gameContainer.style.width = width + "px"
+        gameContainer.style.height = height + "px"
+        canvas.style.width = width + "px"
+        canvas.style.height = height + "px"
+        gameOverScreen.style.width = width + "px"
+        gameOverScreen.style.height = height + "px"
       }
 
       function createBubble() {
-        const margin = 20;
-        const x = margin + Math.random() * (canvas.width - 2 * margin);
-        const isRed = Math.random() < 0.15;
+        const margin = 20
+        const x = margin + Math.random() * (canvas.width - 2 * margin)
+        const isRed = Math.random() < 0.15
         bubbles.push({
           x: x,
           y: 0,
           radius: 15 + Math.random() * 10,
-          speed: isRed ? 1 : 1 + Math.random() * 1.5,
+          speed: isRed ? 1 : 1 + Math.random() * 1.2,
           opacity: 0.7 + Math.random() * 0.3,
           red: isRed,
-        });
+        })
       }
 
       function update() {
-        if (gameOver) return;
+        if (gameOver) return
 
-        let now = Date.now();
+        let now = Date.now()
         if (now - lastBubbleTime > bubbleInterval) {
-          createBubble();
-          lastBubbleTime = now;
+          createBubble()
+          lastBubbleTime = now
         }
 
         if (now - lastDifficultyIncrease > 10000 && bubbleInterval > 600) {
-          bubbleInterval -= 200;
-          lastDifficultyIncrease = now;
+          bubbleInterval -= 200
+          lastDifficultyIncrease = now
         }
 
         bubbles.forEach((bubble, index) => {
-          bubble.y += bubble.speed;
+          bubble.y += bubble.speed
           if (bubble.y > canvas.height) {
-            bubbles.splice(index, 1);
-            lives--;
+            bubbles.splice(index, 1)
+            lives--
             if (lives <= 0) {
-              triggerGameOver();
+              triggerGameOver()
             }
           }
-        });
+        })
 
         bubbles = bubbles.filter((bubble) => {
           const hit =
             bubble.x > player.x &&
             bubble.x < player.x + player.width &&
             bubble.y + bubble.radius > player.y &&
-            bubble.y < player.y + player.height;
-          if (hit) score += bubble.red ? 10 : 1;
-          return !hit;
-        });
+            bubble.y < player.y + player.height
+          if (hit) score += bubble.red ? 10 : 1
+          return !hit
+        })
       }
 
       function draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
 
         if (!gameOver) {
-          ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
-          ctx.drawImage(player.image, player.x, player.y, player.width, player.height);
+          ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height)
+          ctx.drawImage(
+            player.image,
+            player.x,
+            player.y,
+            player.width,
+            player.height,
+          )
 
           bubbles.forEach((bubble) => {
-            const size = bubble.radius * 2;
-            ctx.save();
-            ctx.globalAlpha = bubble.opacity;
-            const img = bubble.red ? redBubbleImage : bubbleImage;
-            ctx.drawImage(img, bubble.x - bubble.radius, bubble.y - bubble.radius, size, size);
-            ctx.restore();
-          });
+            const size = bubble.radius * 2
+            ctx.save()
+            ctx.globalAlpha = bubble.opacity
+            const img = bubble.red ? redBubbleImage : bubbleImage
+            ctx.drawImage(
+              img,
+              bubble.x - bubble.radius,
+              bubble.y - bubble.radius,
+              size,
+              size,
+            )
+            ctx.restore()
+          })
 
-          ctx.font = "bold 20px Arial";
-          ctx.fillStyle = "#aee800";
-          ctx.fillText("Score: " + score, canvas.width - 120, 30);
+          ctx.font = "bold 20px Arial"
+          ctx.fillStyle = "#aee800"
+          ctx.fillText("Bubble Catcher", canvas.width - 350, 30)
+          ctx.fillText("Score: " + score, canvas.width - 120, 30)
 
           for (let i = 0; i < lives; i++) {
-            ctx.drawImage(whaleImg, 10 + i * 40, 40, 35, 35);
+            ctx.drawImage(whaleImg, 10 + i * 40, 40, 35, 35)
           }
         }
       }
 
       function triggerGameOver() {
-        gameOver = true;
-        bubbles = [];
-        titleDiv.style.display = "none";
-        gameOverScreen.style.display = "block";
-        finalScoreText.textContent = "Score: " + score;
-        restartBtn.style.display = "inline-block";
-        downloadBtn.style.display = "inline-block";
+        gameOver = true
+        bubbles = []
+        resizeCanvas() // Ensure alignment
+        gameOverScreen.style.display = "block"
+        finalScoreText.textContent = "Score: " + score
+        restartBtn.style.display = "inline-block"
+        downloadBtn.style.display = "inline-block"
       }
 
       function restartGame() {
-        bubbles = [];
-        score = 0;
-        lives = 3;
-        gameOver = false;
-        titleDiv.style.display = "block";
-        gameOverScreen.style.display = "none";
-        restartBtn.style.display = "none";
-        downloadBtn.style.display = "none";
-        bubbleInterval = 2000;
-        lastBubbleTime = Date.now();
-        lastDifficultyIncrease = Date.now();
+        bubbles = []
+        score = 0
+        lives = 3
+        gameOver = false
+        gameOverScreen.style.display = "none"
+        restartBtn.style.display = "none"
+        downloadBtn.style.display = "none"
+        bubbleInterval = 2000
+        lastBubbleTime = Date.now()
+        lastDifficultyIncrease = Date.now()
       }
 
       function downloadScreenshot() {
-        restartBtn.style.display = "none";
-        downloadBtn.style.display = "none";
+        restartBtn.style.display = "none"
+        downloadBtn.style.display = "none"
 
-        html2canvas(document.getElementById("gameOverScreen"),{useCORS: true}).then((canvasShot) => {
-          const link = document.createElement("a");
-          link.download = "bubblecatcher_score.png";
-          link.href = canvasShot.toDataURL();
-          link.click();
+        const rect = gameOverScreen.getBoundingClientRect()
+        const scale = window.devicePixelRatio || 1
 
-          restartBtn.style.display = "inline-block";
-          downloadBtn.style.display = "inline-block";
-        });
+        html2canvas(gameOverScreen, {
+          useCORS: true,
+          width: rect.width,
+          height: rect.height,
+          scale: scale,
+        }).then((canvasShot) => {
+          const link = document.createElement("a")
+          link.download = "bubblecatcher_score.png"
+          link.href = canvasShot.toDataURL()
+          link.click()
+
+          restartBtn.style.display = "inline-block"
+          downloadBtn.style.display = "inline-block"
+        })
       }
-      
-      
 
-      window.addEventListener("resize", resizeCanvas);
-      resizeCanvas();
-      function gameLoop() { update(); draw(); requestAnimationFrame(gameLoop); }
-      let keys = {};
-      document.addEventListener("keydown", (e) => (keys[e.key] = true));
-      document.addEventListener("keyup", (e) => (keys[e.key] = false));
+      function gameLoop() {
+        update()
+        draw()
+        requestAnimationFrame(gameLoop)
+      }
 
-      let isTouching = false;
+      window.addEventListener("resize", resizeCanvas)
+      resizeCanvas()
+      gameLoop()
+      
+            let keys = {}
+      document.addEventListener("keydown", (e) => (keys[e.key] = true))
+      document.addEventListener("keyup", (e) => (keys[e.key] = false))
+
+      let isTouching = false
       canvas.addEventListener("touchstart", function (e) {
-        const touch = e.touches[0];
-        const rect = canvas.getBoundingClientRect();
-        const touchX = touch.clientX - rect.left;
+        const touch = e.touches[0]
+        const rect = canvas.getBoundingClientRect()
+        const touchX = touch.clientX - rect.left
         if (touchX >= player.x && touchX <= player.x + player.width) {
-          isTouching = true;
+          isTouching = true
         }
-      });
-      canvas.addEventListener("touchmove", function (e) {
-        if (isTouching) {
-          const touch = e.touches[0];
-          const rect = canvas.getBoundingClientRect();
-          const touchX = touch.clientX - rect.left;
-          player.x = touchX - player.width / 2;
-          if (player.x < 0) player.x = 0;
-          if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
-        }
-        e.preventDefault();
-      }, { passive: false });
-      canvas.addEventListener("touchend", function () { isTouching = false; });
+      })
+      canvas.addEventListener(
+        "touchmove",
+        function (e) {
+          if (isTouching) {
+            const touch = e.touches[0]
+            const rect = canvas.getBoundingClientRect()
+            const touchX = touch.clientX - rect.left
+            player.x = touchX - player.width / 2
+            if (player.x < 0) player.x = 0
+            if (player.x + player.width > canvas.width)
+              player.x = canvas.width - player.width
+          }
+          e.preventDefault()
+        },
+        { passive: false },
+      )
+      canvas.addEventListener("touchend", function () {
+        isTouching = false
+      })
 
       function movePlayer() {
         if (!gameOver) {
-          if (keys["ArrowLeft"] && player.x > 0) player.x -= player.speed;
-          if (keys["ArrowRight"] && player.x + player.width < canvas.width) player.x += player.speed;
+          if (keys["ArrowLeft"] && player.x > 0) player.x -= player.speed
+          if (keys["ArrowRight"] && player.x + player.width < canvas.width)
+            player.x += player.speed
         }
-        requestAnimationFrame(movePlayer);
+        requestAnimationFrame(movePlayer)
       }
 
-      gameLoop();
-      movePlayer();
+      gameLoop()
+      movePlayer()
     </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   </body>
 </html>
