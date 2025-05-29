@@ -14,12 +14,13 @@
         width: 100%;
         background: #000;
         font-weight: bold;
+        touch-action: none;
       }
 
       canvas {
         display: block;
         width: 100vw;
-        height: 100vh;
+        height: 100dvh;
         touch-action: none;
       }
 
@@ -99,6 +100,7 @@
     <button id="restartBtn" onclick="restartGame()">Restart</button>
     <button id="downloadBtn" onclick="downloadScreenshot()">Download & Share</button>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script>
       const canvas = document.getElementById("gameCanvas");
       const ctx = canvas.getContext("2d");
@@ -144,13 +146,18 @@
       let lastDifficultyIncrease = Date.now();
 
       function resizeCanvas() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        const ratio = window.devicePixelRatio || 1;
+        canvas.width = window.innerWidth * ratio;
+        canvas.height = window.innerHeight * ratio;
+        canvas.style.width = window.innerWidth + "px";
+        canvas.style.height = window.innerHeight + "px";
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.scale(ratio, ratio);
       }
 
       function createBubble() {
         const margin = 20;
-        const x = margin + Math.random() * (canvas.width - 2 * margin);
+        const x = margin + Math.random() * (canvas.width / (window.devicePixelRatio || 1) - 2 * margin);
         const isRed = Math.random() < 0.15;
         bubbles.push({
           x: x,
@@ -178,7 +185,7 @@
 
         bubbles.forEach((bubble, index) => {
           bubble.y += bubble.speed;
-          if (bubble.y > canvas.height) {
+          if (bubble.y > canvas.height / (window.devicePixelRatio || 1)) {
             bubbles.splice(index, 1);
             lives--;
             if (lives <= 0) {
@@ -262,12 +269,16 @@
           downloadBtn.style.display = "inline-block";
         });
       }
-      
-      
 
       window.addEventListener("resize", resizeCanvas);
       resizeCanvas();
-      function gameLoop() { update(); draw(); requestAnimationFrame(gameLoop); }
+
+      function gameLoop() {
+        update();
+        draw();
+        requestAnimationFrame(gameLoop);
+      }
+
       let keys = {};
       document.addEventListener("keydown", (e) => (keys[e.key] = true));
       document.addEventListener("keyup", (e) => (keys[e.key] = false));
@@ -281,6 +292,7 @@
           isTouching = true;
         }
       });
+
       canvas.addEventListener("touchmove", function (e) {
         if (isTouching) {
           const touch = e.touches[0];
@@ -288,16 +300,23 @@
           const touchX = touch.clientX - rect.left;
           player.x = touchX - player.width / 2;
           if (player.x < 0) player.x = 0;
-          if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
+          if (player.x + player.width > canvas.width / (window.devicePixelRatio || 1)) {
+            player.x = canvas.width / (window.devicePixelRatio || 1) - player.width;
+          }
         }
         e.preventDefault();
       }, { passive: false });
-      canvas.addEventListener("touchend", function () { isTouching = false; });
+
+      canvas.addEventListener("touchend", function () {
+        isTouching = false;
+      });
 
       function movePlayer() {
         if (!gameOver) {
           if (keys["ArrowLeft"] && player.x > 0) player.x -= player.speed;
-          if (keys["ArrowRight"] && player.x + player.width < canvas.width) player.x += player.speed;
+          if (keys["ArrowRight"] && player.x + player.width < canvas.width / (window.devicePixelRatio || 1)) {
+            player.x += player.speed;
+          }
         }
         requestAnimationFrame(movePlayer);
       }
@@ -305,6 +324,5 @@
       gameLoop();
       movePlayer();
     </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   </body>
 </html>
