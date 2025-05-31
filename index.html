@@ -118,7 +118,7 @@
     </button>
 
     <!-- Muted initially -->
-    <audio id="bgMusic" loop muted>
+    <audio id="bgMusic" loop>
       <source
         src="https://subaquatic-legacy.github.io/bubblezzzz/game_background.mp3"
         type="audio/mpeg"
@@ -135,9 +135,13 @@
         const playPromise = bgMusic.play()
 
         if (playPromise !== undefined) {
-          playPromise.catch((error) => {
-            console.warn("Autoplay blocked:", error)
-          })
+          playPromise
+            .then(() => {
+              console.log("Audio playback started.")
+            })
+            .catch((error) => {
+              console.warn("Autoplay blocked:", error)
+            })
         }
 
         // Remove all listeners after first trigger
