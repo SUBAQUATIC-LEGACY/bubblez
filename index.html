@@ -102,20 +102,25 @@
       <canvas id="gameCanvas"></canvas>
       <div id="gameOverScreen">
         <h1>GAME OVER</h1>
-        <p id="finalScore">Score: 0</p>
+        <p id="finalScore">SCORE: 0</p>
         <img
           id="gameOverImage"
           crossorigin="anonymous"
           src="https://subaquatic-legacy.github.io/bubblezzzz/images/Game_Hercules.png"
           alt="Game Over Image"
         />
-        <p id="expansionPhrase">Expansion pack<br />coming soon!</p>
+        <p id="expansionPhrase">EXPANSION PACK<br />COMING SOON</p>
       </div>
     </div>
-    <button id="restartBtn" onclick="restartGame()">Restart</button>
+    <button id="restartBtn" onclick="restartGame()">RESTART</button>
     <button id="downloadBtn" onclick="downloadScreenshot()">
-      Download & Share
+      SHARE YOUR SCORE
     </button>
+
+    <audio id="bgMusic" loop autoplay>
+      <source src="https://subaquatic-legacy.github.io/bubblezzzz/game_background.mp3" type="audio/mpeg" />
+      Your browser does not support the audio element.
+    </audio>
 
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <script>
@@ -218,7 +223,7 @@
         }
 
         if (now - lastDifficultyIncrease > 10000 && bubbleInterval > 600) {
-          bubbleInterval -= 200
+          bubbleInterval -= 500
           lastDifficultyIncrease = now
         }
 
@@ -288,7 +293,7 @@
         bubbles = []
         resizeCanvas() // Ensure alignment
         gameOverScreen.style.display = "block"
-        finalScoreText.textContent = "Score: " + score
+        finalScoreText.textContent = "SCORE: " + score
         restartBtn.style.display = "inline-block"
         downloadBtn.style.display = "inline-block"
       }
@@ -338,8 +343,8 @@
       window.addEventListener("resize", resizeCanvas)
       resizeCanvas()
       gameLoop()
-      
-            let keys = {}
+
+      let keys = {}
       document.addEventListener("keydown", (e) => (keys[e.key] = true))
       document.addEventListener("keyup", (e) => (keys[e.key] = false))
 
