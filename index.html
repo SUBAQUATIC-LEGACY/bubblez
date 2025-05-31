@@ -117,10 +117,31 @@
       SHARE YOUR SCORE
     </button>
 
-    <audio id="bgMusic" loop autoplay>
+    <!-- Muted initially -->
+    <audio id="bgMusic" loop muted>
       <source src="https://subaquatic-legacy.github.io/bubblezzzz/game_background.mp3" type="audio/mpeg" />
       Your browser does not support the audio element.
     </audio>
+
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script>
+      const bgMusic = document.getElementById("bgMusic")
+
+      // Unmute and play on first interaction
+      function enableAudioOnce() {
+        bgMusic.muted = false
+        bgMusic.play().catch((e) => {
+          console.warn("Autoplay failed:", e)
+        })
+        document.removeEventListener("click", enableAudioOnce)
+        document.removeEventListener("keydown", enableAudioOnce)
+        document.removeEventListener("touchstart", enableAudioOnce)
+      }
+
+      document.addEventListener("click", enableAudioOnce)
+      document.addEventListener("keydown", enableAudioOnce)
+      document.addEventListener("touchstart", enableAudioOnce)
+    </script>
 
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <script>
