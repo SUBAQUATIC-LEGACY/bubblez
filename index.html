@@ -119,7 +119,10 @@
 
     <!-- Muted initially -->
     <audio id="bgMusic" loop muted>
-      <source src="https://subaquatic-legacy.github.io/bubblezzzz/game_background.mp3" type="audio/mpeg" />
+      <source
+        src="https://subaquatic-legacy.github.io/bubblezzzz/game_background.mp3"
+        type="audio/mpeg"
+      />
       Your browser does not support the audio element.
     </audio>
 
@@ -127,20 +130,26 @@
     <script>
       const bgMusic = document.getElementById("bgMusic")
 
-      // Unmute and play on first interaction
-      function enableAudioOnce() {
+      function enableAudio() {
         bgMusic.muted = false
-        bgMusic.play().catch((e) => {
-          console.warn("Autoplay failed:", e)
-        })
-        document.removeEventListener("click", enableAudioOnce)
-        document.removeEventListener("keydown", enableAudioOnce)
-        document.removeEventListener("touchstart", enableAudioOnce)
+        const playPromise = bgMusic.play()
+
+        if (playPromise !== undefined) {
+          playPromise.catch((error) => {
+            console.warn("Autoplay blocked:", error)
+          })
+        }
+
+        // Remove all listeners after first trigger
+        document.removeEventListener("click", enableAudio)
+        document.removeEventListener("touchstart", enableAudio)
+        document.removeEventListener("keydown", enableAudio)
       }
 
-      document.addEventListener("click", enableAudioOnce)
-      document.addEventListener("keydown", enableAudioOnce)
-      document.addEventListener("touchstart", enableAudioOnce)
+      // Must bind directly to user interaction for mobile
+      document.addEventListener("click", enableAudio)
+      document.addEventListener("touchstart", enableAudio)
+      document.addEventListener("keydown", enableAudio)
     </script>
 
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
