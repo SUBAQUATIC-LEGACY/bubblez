@@ -42,12 +42,12 @@
         overflow: hidden;
 
         /* Flexbox for centering content */
-        justify-content: center;
         align-items: center;
         flex-direction: column;
       }
 
       #gameOverContent {
+        margin-top: 50px; /* CONTROL TOP OFFSET HERE */
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -95,24 +95,22 @@
         font-size: 18px;
         font-weight: bold;
         padding: 10px 20px;
-        display: none;
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
         background-color: #aee800;
         color: #000;
         border: none;
         border-radius: 5px;
         cursor: pointer;
         z-index: 20;
+        margin-top: 10px; /* space from previous element */
+        display: none;
       }
 
       #restartBtn {
-        top: 80%;
+        top: 1%;
       }
 
       #downloadBtn {
-        top: 90%;
+        top: 2%;
       }
     </style>
   </head>
@@ -132,6 +130,9 @@
           <p id="LEGACY">LEGACY</p>
           <p id="LEGACY">♦</p>
           <p id="expansionPhrase">EXPANSION PACK<br />COMING SOON</p>
+          <!-- Move buttons here -->
+          <button id="restartBtn" onclick="restartGame()">RESTART</button>
+          <button id="downloadBtn" onclick="downloadScreenshot()">SHARE YOUR SCORE</button>
         </div>
       </div>
     </div>
@@ -352,6 +353,7 @@
         finalScoreText.textContent = "BUBBLE SCORE: " + score
         restartBtn.style.display = "inline-block"
         downloadBtn.style.display = "inline-block"
+        bgMusic.pause()
       }
 
       function restartGame() {
@@ -365,6 +367,8 @@
         bubbleInterval = 2000
         lastBubbleTime = Date.now()
         lastDifficultyIncrease = Date.now()
+        bgMusic.currentTime = 0
+        bgMusic.play()
       }
 
       function downloadScreenshot() {
