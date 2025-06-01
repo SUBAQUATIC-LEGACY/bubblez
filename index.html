@@ -154,6 +154,8 @@
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <script>
       const bgMusic = document.getElementById("bgMusic")
+      bgMusic.load()
+
 
       function enableAudio() {
         if (!bgMusic.muted) return // Already enabled
