@@ -117,6 +117,50 @@
   <body>
     <div id="gameContainer">
       <canvas id="gameCanvas"></canvas>
+      <div
+        id="startScreen"
+        style="
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-color: #000;
+          z-index: 10;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-direction: column;
+        "
+      >
+        <img
+          src="https://subaquatic-legacy.github.io/bubblezzzz/images/Game_BG_1.png"
+          style="
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+          "
+        />
+        <button
+          onclick="startGame()"
+          style="
+            font-size: 24px;
+            padding: 12px 24px;
+            background-color: #aee800;
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+          "
+        >
+          START GAME
+        </button>
+      </div>
       <div id="gameOverScreen">
         <div id="gameOverContent">
           <h1>GAME OVER</h1>
@@ -178,16 +222,12 @@
         document.removeEventListener("click", enableAudio)
         document.removeEventListener("touchstart", enableAudio)
         document.removeEventListener("keydown", enableAudio)
-        document.removeEventListener("touchmove", enableAudio)
-
       }
 
       // Must bind directly to user interaction for mobile
       document.addEventListener("click", enableAudio)
       document.addEventListener("touchstart", enableAudio)
       document.addEventListener("keydown", enableAudio)
-      document.addEventListener("touchmove", enableAudio)
-
 
       canvas.addEventListener(
         "touchmove",
@@ -387,6 +427,14 @@
         bgMusic.pause()
       }
 
+      function startGame() {
+        document.getElementById("startScreen").style.display = "none"
+        gameOverScreen.style.display = "none"
+        resetGame()
+        enableAudio() // Ensure music starts when game begins
+        gameLoop()
+      }
+
       function restartGame() {
         bubbles = []
         score = 0
@@ -400,6 +448,20 @@
         lastDifficultyIncrease = Date.now()
         bgMusic.currentTime = 0
         bgMusic.play()
+        resetGame()
+        gameLoop()
+      }
+
+      function resetGame() {
+        player.x = 160
+        player.y = 550
+        lives = 3
+        score = 0
+        bubbles = []
+        bubbleInterval = 2000
+        lastBubbleTime = Date.now()
+        lastDifficultyIncrease = Date.now()
+        gameOver = false
       }
 
       function downloadScreenshot() {
@@ -426,9 +488,11 @@
       }
 
       function gameLoop() {
+        if (!gameOver) {
         update()
         draw()
         requestAnimationFrame(gameLoop)
+        }
       }
 
       window.addEventListener("resize", resizeCanvas)
