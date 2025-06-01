@@ -178,12 +178,16 @@
         document.removeEventListener("click", enableAudio)
         document.removeEventListener("touchstart", enableAudio)
         document.removeEventListener("keydown", enableAudio)
+        document.removeEventListener("touchmove", enableAudio)
+
       }
 
       // Must bind directly to user interaction for mobile
       document.addEventListener("click", enableAudio)
       document.addEventListener("touchstart", enableAudio)
       document.addEventListener("keydown", enableAudio)
+      document.addEventListener("touchmove", enableAudio)
+
 
       canvas.addEventListener(
         "touchmove",
