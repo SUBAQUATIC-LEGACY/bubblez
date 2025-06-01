@@ -222,30 +222,9 @@
         document.removeEventListener("touchstart", enableAudio)
         document.removeEventListener("keydown", enableAudio)
       }
-
       // Must bind directly to user interaction for mobile
       document.addEventListener("touchstart", enableAudio)
       document.addEventListener("keydown", enableAudio)
-
-      canvas.addEventListener(
-        "touchmove",
-        function (e) {
-          if (isTouching) {
-            const touch = e.touches[0]
-            const rect = canvas.getBoundingClientRect()
-            const touchX = touch.clientX - rect.left
-            player.x = touchX - player.width / 2
-            if (player.x < 0) player.x = 0
-            if (player.x + player.width > canvas.width)
-              player.x = canvas.width - player.width
-
-            // Try to enable audio here as well (Android fallback)
-            enableAudio()
-          }
-          e.preventDefault()
-        },
-        { passive: false },
-      )
     </script>
 
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
@@ -295,11 +274,12 @@
 
       let bubbles = []
       let score = 0
-      let lives = 0
+      let lives = 3
       let gameOver = false
       let bubbleInterval = 2000
-      let lastBubbleTime = 0
+      let lastBubbleTime = Date.now()
       let lastDifficultyIncrease = Date.now()
+      let bubbleSpeedMultiplier = 1;
 
       function resizeCanvas() {
         canvas.width = baseWidth
@@ -337,6 +317,7 @@
           opacity: 0.7 + Math.random() * 0.3,
           red: isRed,
         })
+        
       }
 
       function update() {
@@ -349,12 +330,13 @@
         }
 
         if (now - lastDifficultyIncrease > 10000 && bubbleInterval > 600) {
-          bubbleInterval -= 800
+          bubbleInterval -= 200
           lastDifficultyIncrease = now
+          bubbleSpeedMultiplier += 0.3; 
         }
 
         bubbles.forEach((bubble, index) => {
-          bubble.y += bubble.speed
+          bubble.y += bubble.speed * bubbleSpeedMultiplier;
           if (bubble.y > canvas.height) {
             bubbles.splice(index, 1)
             lives--
@@ -425,27 +407,20 @@
         bgMusic.pause()
       }
 
-      function startGame() {    
-      
+      function startGame() {          
         document.getElementById("startScreen").style.display = "none"
-        gameOverScreen.style.display = "none"        
+        gameOverScreen.style.display = "none"    
+        bgMusic.currentTime = 0
         bgMusic.play()
         enableAudio()// Ensure music starts when game begins
         resetGame()
-        gameLoop()
       }
 
-      function restartGame() {
-        bubbles = []
-        score = 0
-        lives = 3
+      function restartGame() {        
         gameOver = false
         gameOverScreen.style.display = "none"
         restartBtn.style.display = "none"
         downloadBtn.style.display = "none"
-        bubbleInterval = 2000
-        lastBubbleTime = Date.now()
-        lastDifficultyIncrease = Date.now()
         bgMusic.currentTime = 0
         bgMusic.play()
         resetGame()
@@ -453,15 +428,16 @@
       }
 
       function resetGame() {
+     		gameOver = false
         player.x = 160
         player.y = 550
-        lives = 0
+        lives = 3
         score = 0
         bubbles = []
         bubbleInterval = 2000
-        lastBubbleTime = Date.now()
+        lastBubbleTime = Date.now()     
         lastDifficultyIncrease = Date.now()
-        gameOver = false
+        bubbleSpeedMultiplier = 1
       }
 
       function downloadScreenshot() {
@@ -497,7 +473,6 @@
 
       window.addEventListener("resize", resizeCanvas)
       resizeCanvas()
-      gameLoop()
 
       let keys = {}
       document.addEventListener("keydown", (e) => (keys[e.key] = true))
