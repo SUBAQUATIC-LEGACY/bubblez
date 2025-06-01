@@ -218,14 +218,12 @@
           console.warn("Playback error:", e)
         }
 
-        // Remove all listeners after first trigger
-        document.removeEventListener("click", enableAudio)
+        // Remove all listeners after first trigger        
         document.removeEventListener("touchstart", enableAudio)
         document.removeEventListener("keydown", enableAudio)
       }
 
       // Must bind directly to user interaction for mobile
-      document.addEventListener("click", enableAudio)
       document.addEventListener("touchstart", enableAudio)
       document.addEventListener("keydown", enableAudio)
 
@@ -427,11 +425,13 @@
         bgMusic.pause()
       }
 
-      function startGame() {
+      function startGame() {    
+      
         document.getElementById("startScreen").style.display = "none"
-        gameOverScreen.style.display = "none"
+        gameOverScreen.style.display = "none"        
+        bgMusic.play()
+        enableAudio()// Ensure music starts when game begins
         resetGame()
-        enableAudio() // Ensure music starts when game begins
         gameLoop()
       }
 
@@ -455,7 +455,7 @@
       function resetGame() {
         player.x = 160
         player.y = 550
-        lives = 3
+        lives = 0
         score = 0
         bubbles = []
         bubbleInterval = 2000
