@@ -38,37 +38,56 @@
         text-align: center;
         font-family: Arial, sans-serif;
         z-index: 15;
-        padding-top: 5%;
         box-sizing: border-box;
         overflow: hidden;
+
+        /* Flexbox for centering content */
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+      }
+
+      #gameOverContent {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
       }
 
       #gameOverScreen h1,
       #gameOverScreen p {
-        margin: 10px 0;
         font-weight: bold;
       }
 
       #gameOverImage {
-        max-width: 60%;
+        max-width: 40%;
         height: auto;
         margin: 10 auto;
+        margin-top: 40 auto;
       }
 
       #gameOverScreen h1 {
         margin-bottom: 0;
+        font-size: 24px;
       }
 
       #finalScore {
         margin-top: 0;
-        font-size: 28px;
-        margin-bottom: 120px;
+        font-size: 24px;
+        margin-bottom: 30px;
       }
 
       #expansionPhrase {
-        font-size: 28px;
+        font-size: 24px;
         font-weight: bold;
-        margin-top: 30px;
+        margin-top: 0px;
+      }
+
+      #LEGACY {
+        font-size: 24px;
+        font-weight: bold;
+        margin-top: 2px;
+        margin-bottom: 6px;
       }
 
       #restartBtn,
@@ -101,15 +120,19 @@
     <div id="gameContainer">
       <canvas id="gameCanvas"></canvas>
       <div id="gameOverScreen">
-        <h1>GAME OVER</h1>
-        <p id="finalScore">SCORE: 0</p>
-        <img
-          id="gameOverImage"
-          crossorigin="anonymous"
-          src="https://subaquatic-legacy.github.io/bubblezzzz/images/Game_Hercules.png"
-          alt="Game Over Image"
-        />
-        <p id="expansionPhrase">EXPANSION PACK<br />COMING SOON</p>
+        <div id="gameOverContent">
+          <h1>GAME OVER</h1>
+          <p id="finalScore">BUBBLE SCORE: 0</p>
+          <img
+            id="gameOverImage"
+            crossorigin="anonymous"
+            src="https://subaquatic-legacy.github.io/bubblezzzz/images/Game_Hercules.png"
+            alt="Game Over Image"
+          />
+          <p id="LEGACY">LEGACY</p>
+          <p id="LEGACY">♦</p>
+          <p id="expansionPhrase">EXPANSION PACK<br />COMING SOON</p>
+        </div>
       </div>
     </div>
     <button id="restartBtn" onclick="restartGame()">RESTART</button>
@@ -122,7 +145,7 @@
       <source
         src="https://subaquatic-legacy.github.io/bubblezzzz/game_background.mp3"
         type="audio/mpeg"
-      />     
+      />
     </audio>
 
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
@@ -202,7 +225,7 @@
 
       let bubbles = []
       let score = 0
-      let lives = 3
+      let lives = 0
       let gameOver = false
       let bubbleInterval = 2000
       let lastBubbleTime = 0
@@ -256,7 +279,7 @@
         }
 
         if (now - lastDifficultyIncrease > 10000 && bubbleInterval > 600) {
-          bubbleInterval -= 500
+          bubbleInterval -= 800
           lastDifficultyIncrease = now
         }
 
@@ -325,8 +348,8 @@
         gameOver = true
         bubbles = []
         resizeCanvas() // Ensure alignment
-        gameOverScreen.style.display = "block"
-        finalScoreText.textContent = "SCORE: " + score
+        gameOverScreen.style.display = "flex"
+        finalScoreText.textContent = "BUBBLE SCORE: " + score
         restartBtn.style.display = "inline-block"
         downloadBtn.style.display = "inline-block"
       }
