@@ -132,7 +132,9 @@
           <p id="expansionPhrase">EXPANSION PACK<br />COMING SOON</p>
           <!-- Move buttons here -->
           <button id="restartBtn" onclick="restartGame()">RESTART</button>
-          <button id="downloadBtn" onclick="downloadScreenshot()">SHARE YOUR SCORE</button>
+          <button id="downloadBtn" onclick="downloadScreenshot()">
+            SHARE YOUR SCORE
+          </button>
         </div>
       </div>
     </div>
@@ -154,6 +156,7 @@
       const bgMusic = document.getElementById("bgMusic")
 
       function enableAudio() {
+        if (!bgMusic.muted) return // Already enabled
         bgMusic.muted = false
         const playPromise = bgMusic.play()
 
@@ -177,6 +180,26 @@
       document.addEventListener("click", enableAudio)
       document.addEventListener("touchstart", enableAudio)
       document.addEventListener("keydown", enableAudio)
+
+      canvas.addEventListener(
+        "touchmove",
+        function (e) {
+          if (isTouching) {
+            const touch = e.touches[0]
+            const rect = canvas.getBoundingClientRect()
+            const touchX = touch.clientX - rect.left
+            player.x = touchX - player.width / 2
+            if (player.x < 0) player.x = 0
+            if (player.x + player.width > canvas.width)
+              player.x = canvas.width - player.width
+
+            // Try to enable audio here as well (Android fallback)
+            enableAudio()
+          }
+          e.preventDefault()
+        },
+        { passive: false },
+      )
     </script>
 
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
