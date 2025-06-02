@@ -158,7 +158,7 @@
             cursor: pointer;
           "
         >
-          START GAME 3
+          START GAME
         </button>
       </div>
       <div id="gameOverScreen">
@@ -194,6 +194,12 @@
         type="audio/mpeg"
       />
     </audio>
+    <audio id="lifeLostSound">
+      <source
+        src="https://subaquatic-legacy.github.io/bubblez/life_loss.mp3"
+        type="audio/mpeg"
+      />
+    </audio>
 
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <script>
@@ -218,7 +224,7 @@
           console.warn("Playback error:", e)
         }
 
-        // Remove all listeners after first trigger        
+        // Remove all listeners after first trigger
         document.removeEventListener("touchstart", enableAudio)
         document.removeEventListener("keydown", enableAudio)
       }
@@ -250,7 +256,7 @@
         y: 550,
         width: 100,
         height: 100,
-        speed: 5.5,
+        speed: 5.0,
         image: new Image(),
       }
       player.image.src =
@@ -279,7 +285,7 @@
       let bubbleInterval = 2000
       let lastBubbleTime = Date.now()
       let lastDifficultyIncrease = Date.now()
-      let bubbleSpeedMultiplier = 1;
+      let bubbleSpeedMultiplier = 1
       let lastSpeedUpdateTime = Date.now()
 
       function resizeCanvas() {
@@ -318,7 +324,6 @@
           opacity: 0.7 + Math.random() * 0.3,
           red: isRed,
         })
-        
       }
 
       function update() {
@@ -334,17 +339,18 @@
           bubbleInterval -= 500
           lastDifficultyIncrease = now
         }
-        
+
         if (now - lastSpeedUpdateTime > 2000) {
-          bubbleSpeedMultiplier += 0.1; // smaller increment
+          bubbleSpeedMultiplier += 0.1 // smaller increment
           lastSpeedUpdateTime = now
-				}
+        }
 
         bubbles.forEach((bubble, index) => {
-          bubble.y += bubble.speed * bubbleSpeedMultiplier;
+          bubble.y += bubble.speed * bubbleSpeedMultiplier
           if (bubble.y > canvas.height) {
             bubbles.splice(index, 1)
             lives--
+            document.getElementById("lifeLostSound").play()
             if (lives <= 0) {
               triggerGameOver()
             }
@@ -412,16 +418,16 @@
         bgMusic.pause()
       }
 
-      function startGame() {          
+      function startGame() {
         document.getElementById("startScreen").style.display = "none"
-        gameOverScreen.style.display = "none"    
+        gameOverScreen.style.display = "none"
         bgMusic.currentTime = 0
         bgMusic.play()
-        enableAudio()// Ensure music starts when game begins
+        enableAudio() // Ensure music starts when game begins
         resetGame()
       }
 
-      function restartGame() {        
+      function restartGame() {
         gameOver = false
         gameOverScreen.style.display = "none"
         restartBtn.style.display = "none"
@@ -433,14 +439,14 @@
       }
 
       function resetGame() {
-     		gameOver = false
+        gameOver = false
         player.x = 160
         player.y = 550
         lives = 3
         score = 0
         bubbles = []
         bubbleInterval = 2000
-        lastBubbleTime = Date.now()     
+        lastBubbleTime = Date.now()
         lastDifficultyIncrease = Date.now()
         bubbleSpeedMultiplier = 1
         lastSpeedUpdateTime = Date.now()
@@ -471,9 +477,9 @@
 
       function gameLoop() {
         if (!gameOver) {
-        update()
-        draw()
-        requestAnimationFrame(gameLoop)
+          update()
+          draw()
+          requestAnimationFrame(gameLoop)
         }
       }
 
