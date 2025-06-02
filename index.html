@@ -269,7 +269,7 @@
 
       const redBubbleImage = new Image()
       redBubbleImage.src =
-        "https://subaquatic-legacy.github.io/bubblezzzz/images/Game_Bubble_cyan.png"
+        "https://subaquatic-legacy.github.io/bubblezzzz/images/Game_Bubble_10p.png"
       redBubbleImage.crossOrigin = "anonymous"
 
       let bubbles = []
@@ -454,7 +454,7 @@
           scale: scale,
         }).then((canvasShot) => {
           const link = document.createElement("a")
-          link.download = "bubblecatcher_score.png"
+          link.download = "bubblecatcher_score_story.png"
           link.href = canvasShot.toDataURL()
           link.click()
 
