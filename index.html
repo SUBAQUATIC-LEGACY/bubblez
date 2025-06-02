@@ -59,13 +59,21 @@
         font-weight: bold;
       }
 
-      #gameOverImage {
-        max-width: 40%;
-        height: auto;
+      #imageWrapper {
+        width: 35vw; /* scale relative to viewport width */
         aspect-ratio: 392 / 500;
-        display: block;
-        margin: 10px;
-        margin-top: 20px; /* top, right/left (centered), bottom */
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 20px;
+        margin-bottom: 10px;
+      }
+
+      #gameOverImage {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
       }
 
       #gameOverScreen h1 {
@@ -167,12 +175,14 @@
         <div id="gameOverContent">
           <h1>GAME OVER</h1>
           <p id="finalScore">BUBBLE SCORE: 0</p>
+          <div id="imageWrapper">
           <img
             id="gameOverImage"
             crossorigin="anonymous"
             src="https://subaquatic-legacy.github.io/bubblez/images/Game_Hercules.png"
             alt="Game Over Image"
           />
+          </div>
           <p id="LEGACY">LEGACY</p>
           <p id="LEGACY">♦</p>
           <p id="expansionPhrase">EXPANSION PACK<br />COMING SOON</p>
