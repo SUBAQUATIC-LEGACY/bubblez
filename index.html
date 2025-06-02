@@ -330,9 +330,9 @@
         }
 
         if (now - lastDifficultyIncrease > 10000 && bubbleInterval > 600) {
-          bubbleInterval -= 200
+          bubbleInterval -= 300
           lastDifficultyIncrease = now
-          bubbleSpeedMultiplier += 0.3; 
+          bubbleSpeedMultiplier += 0.5; 
         }
 
         bubbles.forEach((bubble, index) => {
