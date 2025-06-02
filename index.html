@@ -176,12 +176,12 @@
           <h1>GAME OVER</h1>
           <p id="finalScore">BUBBLE SCORE: 0</p>
           <div id="imageWrapper">
-          <img
-            id="gameOverImage"
-            crossorigin="anonymous"
-            src="https://subaquatic-legacy.github.io/bubblez/images/Game_Hercules.png"
-            alt="Game Over Image"
-          />
+            <img
+              id="gameOverImage"
+              crossorigin="anonymous"
+              src="https://subaquatic-legacy.github.io/bubblez/images/Game_Hercules.png"
+              alt="Game Over Image"
+            />
           </div>
           <p id="LEGACY">LEGACY</p>
           <p id="LEGACY">♦</p>
@@ -235,6 +235,15 @@
         } catch (e) {
           console.warn("Playback error:", e)
         }
+
+        // Unlock lifeLostSound for iOS
+        const lifeLostSound = document.getElementById("lifeLostSound")
+        lifeLostSound
+          .play()
+          .then(() => lifeLostSound.pause()) // Immediately pause after unlocking
+          .catch((error) => {
+            console.warn("Life lost sound unlock failed:", error)
+          })
 
         // Remove all listeners after first trigger
         document.removeEventListener("touchstart", enableAudio)
@@ -361,8 +370,8 @@
           bubble.y += bubble.speed * bubbleSpeedMultiplier
           if (bubble.y > canvas.height) {
             bubbles.splice(index, 1)
-            lives--
-            document.getElementById("lifeLostSound").play()
+            lives--            
+            playLifeLostSound()
             if (lives <= 0) {
               triggerGameOver()
             }
@@ -486,6 +495,14 @@
           downloadBtn.style.display = "inline-block"
         })
       }
+      
+      function playLifeLostSound() {
+  lifeLostSound.pause()                 // Stop any current playback
+  lifeLostSound.currentTime = 0        // Reset to start
+  lifeLostSound.play().catch((e) => {
+    console.warn("Life lost sound error:", e)
+  })
+}
 
       function gameLoop() {
         if (!gameOver) {
