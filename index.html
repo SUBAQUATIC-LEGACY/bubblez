@@ -250,7 +250,7 @@
         y: 550,
         width: 100,
         height: 100,
-        speed: 7,
+        speed: 6.5,
         image: new Image(),
       }
       player.image.src =
@@ -330,7 +330,7 @@
         }
 
         if (now - lastDifficultyIncrease > 10000 && bubbleInterval > 600) {
-          bubbleInterval -= 600
+          bubbleInterval -= 500
           lastDifficultyIncrease = now
           bubbleSpeedMultiplier += 0.5; 
         }
