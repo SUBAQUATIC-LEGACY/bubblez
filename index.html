@@ -60,10 +60,13 @@
       }
 
       #gameOverImage {
-        max-width: 40%;
+        width: 40vw; /* Use viewport width for better responsiveness */
         height: auto;
+        aspect-ratio: 1 / 1; /* Maintain square shape */
+        object-fit: contain;
+        margin-top: 40 auto; 
         margin: 10 auto;
-        margin-top: 40 auto;
+        display: block;
       }
 
       #gameOverScreen h1 {
