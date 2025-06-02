@@ -158,7 +158,7 @@
             cursor: pointer;
           "
         >
-          START GAME 1
+          START GAME 2
         </button>
       </div>
       <div id="gameOverScreen">
@@ -280,6 +280,7 @@
       let lastBubbleTime = Date.now()
       let lastDifficultyIncrease = Date.now()
       let bubbleSpeedMultiplier = 1;
+      let lastSpeedUpdateTime = Date.now()
 
       function resizeCanvas() {
         canvas.width = baseWidth
@@ -332,8 +333,12 @@
         if (now - lastDifficultyIncrease > 10000 && bubbleInterval > 600) {
           bubbleInterval -= 500
           lastDifficultyIncrease = now
-          bubbleSpeedMultiplier += 0.5; 
         }
+        
+        if (now - lastSpeedUpdateTime > 2000) {
+          bubbleSpeedMultiplier += 0.1; // smaller increment
+          lastSpeedUpdateTime = now
+				}
 
         bubbles.forEach((bubble, index) => {
           bubble.y += bubble.speed * bubbleSpeedMultiplier;
@@ -438,6 +443,7 @@
         lastBubbleTime = Date.now()     
         lastDifficultyIncrease = Date.now()
         bubbleSpeedMultiplier = 1
+        lastSpeedUpdateTime = Date.now()
       }
 
       function downloadScreenshot() {
